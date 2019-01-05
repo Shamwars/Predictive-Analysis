@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="8.1.000">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="8.1.000" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="read_excel" compatibility="8.1.000" expanded="true" height="68" name="Read Excel" width="90" x="45" y="85">
+        <parameter key="excel_file" value="C:\Users\munaw\Desktop\CC\Predictive Analytics\Week 5\Lab\Follow-along-Files\customer-churn-data.xlsx"/>
+        <parameter key="sheet_selection" value="sheet number"/>
+        <parameter key="sheet_number" value="1"/>
+        <parameter key="imported_cell_range" value="A1:E997"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <parameter key="first_row_as_names" value="false"/>
+        <list key="annotations">
+          <parameter key="0" value="Name"/>
+        </list>
+        <parameter key="date_format" value=""/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="read_all_values_as_polynominal" value="false"/>
+        <list key="data_set_meta_data_information">
+          <parameter key="0" value="Gender.true.polynominal.attribute"/>
+          <parameter key="1" value="Age.true.integer.attribute"/>
+          <parameter key="2" value="Payment Method.true.polynominal.attribute"/>
+          <parameter key="3" value="Churn.true.polynominal.label"/>
+          <parameter key="4" value="LastTransaction.true.integer.attribute"/>
+        </list>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+        <parameter key="datamanagement" value="double_array"/>
+        <parameter key="data_management" value="auto"/>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="8.1.000" expanded="true" height="103" name="Multiply" width="90" x="45" y="238"/>
+      <operator activated="true" class="filter_examples" compatibility="8.1.000" expanded="true" height="103" name="Filter Examples (2)" width="90" x="246" y="289">
+        <parameter key="parameter_expression" value=""/>
+        <parameter key="condition_class" value="custom_filters"/>
+        <parameter key="invert_filter" value="false"/>
+        <list key="filters_list">
+          <parameter key="filters_entry_key" value="Churn.is_missing."/>
+        </list>
+        <parameter key="filters_logic_and" value="true"/>
+        <parameter key="filters_check_metadata" value="true"/>
+      </operator>
+      <operator activated="true" class="filter_examples" compatibility="8.1.000" expanded="true" height="103" name="Filter Examples" width="90" x="179" y="34">
+        <parameter key="parameter_expression" value=""/>
+        <parameter key="condition_class" value="custom_filters"/>
+        <parameter key="invert_filter" value="false"/>
+        <list key="filters_list">
+          <parameter key="filters_entry_key" value="Churn.is_not_missing."/>
+        </list>
+        <parameter key="filters_logic_and" value="true"/>
+        <parameter key="filters_check_metadata" value="true"/>
+      </operator>
+      <operator activated="true" class="concurrency:parallel_decision_tree" compatibility="8.1.000" expanded="true" height="103" name="Decision Tree" width="90" x="313" y="34">
+        <parameter key="criterion" value="gain_ratio"/>
+        <parameter key="maximal_depth" value="20"/>
+        <parameter key="apply_pruning" value="true"/>
+        <parameter key="confidence" value="0.25"/>
+        <parameter key="apply_prepruning" value="true"/>
+        <parameter key="minimal_gain" value="0.1"/>
+        <parameter key="minimal_leaf_size" value="2"/>
+        <parameter key="minimal_size_for_split" value="4"/>
+        <parameter key="number_of_prepruning_alternatives" value="3"/>
+      </operator>
+      <operator activated="true" class="apply_model" compatibility="8.1.000" expanded="true" height="82" name="Apply Model" width="90" x="514" y="136">
+        <list key="application_parameters"/>
+        <parameter key="create_view" value="false"/>
+      </operator>
+      <connect from_op="Read Excel" from_port="output" to_op="Multiply" to_port="input"/>
+      <connect from_op="Multiply" from_port="output 1" to_op="Filter Examples" to_port="example set input"/>
+      <connect from_op="Multiply" from_port="output 2" to_op="Filter Examples (2)" to_port="example set input"/>
+      <connect from_op="Filter Examples (2)" from_port="example set output" to_op="Apply Model" to_port="unlabelled data"/>
+      <connect from_op="Filter Examples" from_port="example set output" to_op="Decision Tree" to_port="training set"/>
+      <connect from_op="Decision Tree" from_port="model" to_op="Apply Model" to_port="model"/>
+      <connect from_op="Apply Model" from_port="labelled data" to_port="result 2"/>
+      <connect from_op="Apply Model" from_port="model" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+    </process>
+  </operator>
+</process>
